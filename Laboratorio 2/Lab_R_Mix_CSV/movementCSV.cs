@@ -1,5 +1,6 @@
 
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using System;
 using System.IO.Ports;
 using System.Text;
@@ -44,6 +45,8 @@ public class ArduinoController : MonoBehaviour
     private bool isGrounded = false;
     private bool canJump = false;
     private bool previousB4 = false;
+    private bool previousB5 = true;
+    private bool restartRequested = false;
 
     void Start()
     {
@@ -157,6 +160,12 @@ public class ArduinoController : MonoBehaviour
             }
         }
 
+        if (restartRequested)
+        {
+            RestartGame();
+            return;
+        }
+
         isGrounded = Physics2D.OverlapCircle(
             groundPoint.position,
             groundRadius,
@@ -223,6 +232,13 @@ public class ArduinoController : MonoBehaviour
         b5 = tempB5;
         b4 = tempB4;
         potValue = Mathf.Clamp(tempPot, 0, 100);
+
+        bool b5Pressed = b5 == 1;
+
+        if (b5Pressed && !previousB5)
+            restartRequested = true;
+
+        previousB5 = b5Pressed;
 
         string currentState = $"{b7},{b6},{b5},{b4}";
 
@@ -297,6 +313,28 @@ public class ArduinoController : MonoBehaviour
     bool CanJump()
     {
         return isGrounded && canJump;
+    }
+
+    void RestartGame()
+    {
+        restartRequested = false;
+
+        int sceneIndex = SceneManager.GetActiveScene().buildIndex;
+
+        if (sceneIndex < 0)
+        {
+            Debug.LogError(
+                "ArduinoController: Add the current scene to the Build Settings to restart the game."
+            );
+            return;
+        }
+
+        if (showDebug)
+            Debug.Log("RESTARTING GAME");
+
+        Time.timeScale = 1f;
+        ClosePort();
+        SceneManager.LoadScene(sceneIndex);
     }
 
     void OnDrawGizmosSelected()
