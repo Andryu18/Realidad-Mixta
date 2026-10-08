@@ -50,7 +50,7 @@ const bool INVERT_B = false;
 //  SINGLE SPEED 
 // Same for every maneuver
 // Keep margin below 255
-const int SPEED = 200;       // 0 to 255
+const int SPEED = 254;       // 0 to 255
 
 //  PER SIDE TRIM 
 // 100 means no change
