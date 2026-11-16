@@ -30,16 +30,15 @@ El carro no usa Bluetooth. El firmware del control ocupa 1.6 MB, por eso necesit
 
 ## Experiencia en Unity
 
-Flujo: **Bienvenida → Conexión (selección del puerto COM) → Menú → Misión manual / Modo automático / Diagnóstico → Resultados**.
+Flujo: **Conexión (selección del puerto COM) → Menú → Misión manual / Modo automático → Resultados**. La interfaz es mínima: solo lo necesario en cada pantalla.
 
 | Pantalla | Qué hace |
 |---|---|
-| Conexión | Lista los puertos con su tipo (USB, BLUETOOTH, SISTEMA), abre el puerto en segundo plano y verifica que responda el control. Explica el error si el puerto está ocupado, si es el ESP32 del carro o si no responde. Incluye modo demostración con teclado. |
-| Misión manual | 90 s para recoger celdas de energía. Turbo: el carro real sube al 100 %. Aceite: baja al 35 % y vibra. Choque: freno de 400 ms. Cada evento enciende el LED y suena el zumbador. |
-| Modo automático | El carro ejecuta su rutina y el gemelo la replica con la telemetría (paso y PWM de cada lado). Cada paso dispara LED y tono. |
-| Diagnóstico | Muestra las entradas (joystick, botón, modo, enlace, PWM) y permite probar cada salida. Registro serial en vivo. |
+| Conexión | Lista los puertos (USB, BLUETOOTH, SISTEMA), conecta y avisa si el puerto está ocupado, es el del carro o no responde. Incluye modo demostración con teclado. |
+| Misión manual | 90 s para recoger celdas. Turbo: el carro real sube al 100 %. Aceite: baja al 35 % y vibra. Choque: freno de 400 ms. Cada evento enciende el LED y suena el zumbador. |
+| Modo automático | El carro ejecuta su rutina y el gemelo la replica con la telemetría. Cada paso dispara LED y tono. |
 
-Toda la interfaz es propia (UI Toolkit con tema vacío, estilos en `Assets/_Project/UI/Rally.uss`, gráficos dibujados con `Painter2D`). Fuentes libres: Russo One, Oswald y Liberation Sans (licencia OFL).
+Toda la interfaz es propia (UI Toolkit con tema vacío y estilos en `Assets/_Project/UI/Rally.uss`). Fuentes libres: Russo One, Oswald y Liberation Sans (licencia OFL).
 
 ### Retroalimentación Unity → hardware
 

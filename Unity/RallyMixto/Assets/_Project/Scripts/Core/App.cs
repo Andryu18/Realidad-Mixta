@@ -20,16 +20,14 @@ namespace RallyMixto
         [HideInInspector] public AutoMode autoMode;
         [HideInInspector] public bool autoshots;
 
-        public SplashScreen splash;
         public ConnectScreen connect;
         public MenuScreen menu;
         public HudScreen hud;
         public ResultsScreen results;
         public AutoScreen auto;
-        public DiagScreen diag;
 
         VisualElement uiRoot, screens, topbar, toasts, chipDot;
-        Label chipPort, chipCar, chipRate;
+        Label chipPort;
         UiScreen current;
         Hub hub;
 
@@ -63,7 +61,7 @@ namespace RallyMixto
                 autoshots = true;
                 StartCoroutine(AutoShots(args[i + 1]));
             }
-            Show(splash);
+            Show(connect);
         }
 
         void BuildUi()
@@ -84,29 +82,20 @@ namespace RallyMixto
             topbar = Ui.El(uiRoot, "topbar");
             topbar.pickingMode = PickingMode.Ignore;
             var brand = Ui.El(topbar, "brand");
-            brand.Add(new LogoMark(40));
-            var bn = Ui.Text(brand, "RALLY ", "brand-name");
-            var bm = Ui.Text(brand, "MIXTO", "brand-name", "brand-name-b");
-            bm.style.marginLeft = 0;
+            Ui.Text(brand, "RALLY ", "brand-name").style.marginLeft = 0;
+            Ui.Text(brand, "MIXTO", "brand-name", "brand-name-b").style.marginLeft = 0;
             var chip = Ui.El(topbar, "chip");
             chipDot = Ui.El(chip, "chip-dot");
             chipPort = Ui.Text(chip, "", "chip-text");
-            Ui.El(chip, "chip-sep");
-            chipCar = Ui.Text(chip, "", "chip-text");
-            Ui.El(chip, "chip-sep");
-            chipRate = Ui.Text(chip, "", "chip-sub");
-            chipRate.style.marginLeft = 0;
 
             toasts = Ui.El(uiRoot, "toasts");
             toasts.pickingMode = PickingMode.Ignore;
 
-            splash = Make<SplashScreen>();
             connect = Make<ConnectScreen>();
             menu = Make<MenuScreen>();
             hud = Make<HudScreen>();
             results = Make<ResultsScreen>();
             auto = Make<AutoScreen>();
-            diag = Make<DiagScreen>();
         }
 
         T Make<T>() where T : UiScreen, new()
@@ -151,7 +140,6 @@ namespace RallyMixto
             s.root.pickingMode = PickingMode.Position;
             screens.Add(s.root);
             s.root.schedule.Execute(() => s.root.AddToClassList("screen--in")).ExecuteLater(30);
-            Ui.Show(topbar, s.ShowTopbar);
             s.OnShow();
         }
 
@@ -192,7 +180,7 @@ namespace RallyMixto
             if (Input.GetKeyDown(KeyCode.Escape)) current?.OnBack();
 
             // conexion perdida fuera de la pantalla de conexion
-            if (hub.Phase == LinkPhase.Failed && current != connect && current != splash)
+            if (hub.Phase == LinkPhase.Failed && current != connect)
             {
                 Sfx.I.Play("error");
                 Toast("Se perdió la conexión con el control", true);
@@ -208,10 +196,8 @@ namespace RallyMixto
             chipDot.EnableInClassList("chip-dot--ok", ready && hub.CarLink);
             chipDot.EnableInClassList("chip-dot--warn", ready && !hub.CarLink);
             chipDot.EnableInClassList("chip-dot--off", !ready);
-            if (!ready) { chipPort.text = "Sin conexión"; chipCar.text = "Control desconectado"; chipRate.text = "—"; return; }
-            chipPort.text = hub.IsDemo ? "DEMO · teclado" : hub.PortName + " · " + PortScanner.KindLabel(hub.Kind);
-            chipCar.text = hub.CarLink ? (hub.IsDemo ? "Carro simulado" : "Carro enlazado") : "Carro sin enlace";
-            chipRate.text = Mathf.RoundToInt(hub.RxHz) + " Hz";
+            if (!ready) { chipPort.text = "Sin conexión"; return; }
+            chipPort.text = (hub.IsDemo ? "Demo" : hub.PortName) + (hub.CarLink ? " · carro enlazado" : " · carro sin enlace");
         }
 
         // capturas automaticas para la documentacion (-autoshots carpeta)
@@ -228,15 +214,11 @@ namespace RallyMixto
             var wait = new WaitForSecondsRealtime(0.1f);
 
             yield return new WaitForSecondsRealtime(1.6f);
-            yield return Shot("01_bienvenida");
-            Show(connect);
-            yield return new WaitForSecondsRealtime(1.2f);
             yield return Shot("02_conexion");
 
             hub.StartDemo();
             var sim = (SimLink)hub.Link;
             yield return new WaitForSecondsRealtime(0.8f);
-            yield return Shot("02b_conexion_demo");
             Show(menu);
             yield return new WaitForSecondsRealtime(1.5f);
             sim.forcedStick = new Vector2(-650, 400);
@@ -272,16 +254,6 @@ namespace RallyMixto
             Show(auto);
             yield return new WaitForSecondsRealtime(9.5f);
             yield return Shot("09_automatico");
-
-            Show(diag);
-            yield return new WaitForSecondsRealtime(0.6f);
-            hub.SetLed(Led.Fast, "LED control: rápido");
-            hub.Tone(880, 200, "Tono 880 Hz");
-            hub.Brake(400);
-            sim.forcedStick = new Vector2(-400, -300);
-            yield return new WaitForSecondsRealtime(1.5f);
-            yield return Shot("10_diagnostico");
-            sim.forcedStick = Vector2.zero;
 
             Show(menu);
             yield return new WaitForSecondsRealtime(0.8f);

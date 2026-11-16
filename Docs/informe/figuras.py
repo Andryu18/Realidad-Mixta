@@ -45,17 +45,17 @@ def node(x, y, t, col, w=1.55, h=0.62):
     ax.text(x, y, t, ha="center", va="center", fontsize=8, color=GR, weight="bold")
 
 
-P = {"spl": (0.95, 2.3), "con": (2.85, 2.3), "men": (4.85, 2.3), "mis": (6.95, 2.75), "res": (8.95, 2.75), "aut": (6.95, 1.75), "dia": (6.95, 0.75)}
-node(*P["spl"], "Bienvenida", GR); node(*P["con"], "Conexión\n(puerto COM)", CY); node(*P["men"], "Menú", GR)
-node(*P["mis"], "Misión manual", AMB); node(*P["res"], "Resultados", GR); node(*P["aut"], "Modo auto", AMB); node(*P["dia"], "Diagnóstico", VI)
+P = {"con": (1.6, 2.0), "men": (4.0, 2.0), "mis": (6.4, 2.6), "res": (8.7, 2.6), "aut": (6.4, 1.3)}
+node(*P["con"], "Conexión\n(puerto COM)", CY); node(*P["men"], "Menú", GR)
+node(*P["mis"], "Misión manual", AMB); node(*P["res"], "Resultados", GR); node(*P["aut"], "Modo auto", AMB)
 
 
 def a(p, q, c=GR, rad=0.0):
     ax.add_patch(FancyArrowPatch(p, q, arrowstyle="-|>", mutation_scale=10, color=c, lw=1.2, connectionstyle=f"arc3,rad={rad}", shrinkA=24, shrinkB=24))
 
 
-a(P["spl"], P["con"]); a(P["con"], P["men"]); a(P["men"], P["mis"]); a(P["men"], P["aut"]); a(P["men"], P["dia"]); a(P["mis"], P["res"])
+a(P["con"], P["men"]); a(P["men"], P["mis"]); a(P["men"], P["aut"]); a(P["mis"], P["res"])
 a(P["res"], P["men"], rad=0.35)
-ax.text(2.85, 1.25, "pérdida de enlace\n→ vuelve a Conexión", ha="center", fontsize=7.2, color=RD)
+ax.text(1.6, 0.95, "pérdida de enlace\n→ vuelve a Conexión", ha="center", fontsize=7.2, color=RD)
 fig.tight_layout(); fig.savefig("figs/flujo.png", dpi=300); plt.close(fig)
 print("ok")

@@ -24,7 +24,7 @@
 \maketitle
 
 \begin{abstract}
-Se presenta una experiencia físico-digital que integra un carro a control remoto con dos microcontroladores ESP32 y un videojuego desarrollado en Unity. El ESP32 del control lee un joystick, envía las órdenes al ESP32 del carro por ESP-NOW y, al mismo tiempo, actúa como puente con el computador por Bluetooth Clásico o por USB. Unity recibe a 20~Hz la posición del joystick, el modo de operación y la telemetría de los motores, y con ella mueve un gemelo digital del carro. En sentido contrario, Unity envía tres tipos de retroalimentación: visual (LED del control y del carro), sonora (zumbador) y física (freno, vibración y límite de velocidad de los motores). La aplicación se entrega como ejecutable para Windows con una interfaz propia, permite elegir el puerto de conexión desde la misma pantalla y tiene un flujo completo de conexión, menú, misión, modo automático, diagnóstico y resultados.
+Se presenta una experiencia físico-digital que integra un carro a control remoto con dos microcontroladores ESP32 y un videojuego desarrollado en Unity. El ESP32 del control lee un joystick, envía las órdenes al ESP32 del carro por ESP-NOW y, al mismo tiempo, actúa como puente con el computador por Bluetooth Clásico o por USB. Unity recibe a 20~Hz la posición del joystick, el modo de operación y la telemetría de los motores, y con ella mueve un gemelo digital del carro. En sentido contrario, Unity envía tres tipos de retroalimentación: visual (LED del control y del carro), sonora (zumbador) y física (freno, vibración y límite de velocidad de los motores). La aplicación se entrega como ejecutable para Windows con una interfaz propia, permite elegir el puerto de conexión desde la misma pantalla y tiene un flujo completo y minimalista de conexión, menú, misión, modo automático y resultados.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -96,17 +96,17 @@ La Fig.~\ref{fig:flujo} muestra el recorrido del usuario. Si la conexión se pie
 \end{figure}
 
 \subsection{Selección del puerto}
-Como el producto es un ejecutable, el puerto se elige en la propia interfaz (Fig.~\ref{fig:con}). La lista se actualiza sola cada 2.5~s y clasifica cada puerto leyendo el registro de Windows (\texttt{HARDWARE\textbackslash DEVICEMAP\textbackslash SERIALCOMM}): los nombres \texttt{BthModem} son Bluetooth y los de controladores como Silabser o CH340 son USB. Los errores se explican en lenguaje claro: puerto ocupado por el Monitor Serie, puerto que corresponde al ESP32 del carro (se reconoce por su mensaje de arranque), dispositivo que no responde o conexión perdida. Un modo de demostración con teclado permite revisar la experiencia sin hardware.
+Como el producto es un ejecutable, el puerto se elige en la propia interfaz (Fig.~\ref{fig:con}). La lista se actualiza sola cada 2.5~s y clasifica cada puerto leyendo el registro de Windows (\texttt{HARDWARE\textbackslash DEVICEMAP\textbackslash SERIALCOMM}): los nombres \texttt{BthModem} son Bluetooth y los de controladores como Silabser o CH340 son USB. Los errores se explican en lenguaje claro: puerto ocupado por el Monitor Serie, puerto que corresponde al ESP32 del carro (se reconoce por su mensaje de arranque), dispositivo que no responde o conexión perdida. Un modo de demostración con teclado permite revisar la experiencia sin hardware. La interfaz se dejó deliberadamente mínima: cada pantalla muestra solo lo necesario para la tarea.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{../capturas/02_conexion.png}
-\caption{Pantalla de conexión con los puertos detectados y la guía de emparejamiento.}
+\caption{Pantalla de conexión con los puertos detectados.}
 \label{fig:con}
 \end{figure}
 
 \subsection{Misión manual}
-Durante 90~s el jugador recoge celdas de energía en una arena (Fig.~\ref{fig:mis}). El gemelo digital se mueve con la telemetría del carro: la velocidad lineal es el promedio del PWM de ambos lados y la angular su diferencia, igual que la tracción diferencial del vehículo real. Si el carro no tiene enlace, Unity aplica la misma mezcla del firmware sobre el joystick. Cada evento del juego genera retroalimentación en el hardware (Tabla~\ref{tab:retro}). El HUD muestra en vivo las señales enviadas, el joystick, el PWM de cada lado y la velocidad permitida, para que la integración sea visible.
+Durante 90~s el jugador recoge celdas de energía en una arena (Fig.~\ref{fig:mis}). El gemelo digital se mueve con la telemetría del carro: la velocidad lineal es el promedio del PWM de ambos lados y la angular su diferencia, igual que la tracción diferencial del vehículo real. Si el carro no tiene enlace, Unity aplica la misma mezcla del firmware sobre el joystick. Cada evento del juego genera retroalimentación en el hardware (Tabla~\ref{tab:retro}). El HUD solo muestra puntaje, tiempo y el efecto activo (turbo o aceite), para no distraer del carro real.
 
 \begin{table}[t]
 \centering
@@ -129,22 +129,22 @@ Fin de misión & LED lento + melodía & velocidad 0 \% \\
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{../capturas/07_mision_retro.png}
-\caption{Misión manual con turbo activo, registro de retroalimentación y tablero de telemetría.}
+\caption{Misión manual: puntaje, tiempo y gemelo digital.}
 \label{fig:mis}
 \end{figure}
 
-\subsection{Modo automático y diagnóstico}
-En el modo automático el carro ejecuta su rutina y Unity resalta el paso que reporta el carro, mientras el gemelo reproduce el movimiento (Fig.~\ref{fig:auto}). Cada cambio de paso produce un destello y un tono. Si no hay telemetría, el gemelo sigue la rutina por tiempo y la interfaz lo indica. La pantalla de diagnóstico separa entradas y salidas, permite probar cada señal y muestra el registro serial.
+\subsection{Modo automático}
+En el modo automático el carro ejecuta su rutina y Unity resalta el paso que reporta el carro, mientras el gemelo reproduce el movimiento (Fig.~\ref{fig:auto}). Cada cambio de paso produce un destello y un tono. Si no hay telemetría, el gemelo sigue la rutina por tiempo y la interfaz lo indica.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{../capturas/09_automatico.png}
-\caption{Modo automático: paso actual, rutina y retroalimentación enviada.}
+\caption{Modo automático: paso actual de la rutina.}
 \label{fig:auto}
 \end{figure}
 
 \subsection{Diseño visual y de interacción}
-No se usaron elementos de interfaz por defecto de Unity. La interfaz se construyó con UI Toolkit \cite{uitk} y un tema vacío, estilos propios en USS y gráficos vectoriales dibujados con \texttt{Painter2D} (joystick, barras de motores, medidor, logotipo, diagrama del enlace). El código de color separa los dominios: ámbar para lo físico y cian para lo digital, rojo para choques y violeta para sonido. Las tipografías son de licencia libre (Russo One, Oswald, Liberation Sans). Los botones tienen estados de foco, paso del ratón y pulsación, con sonidos sintetizados en tiempo de ejecución. La escena usa URP con luces puntuales, neón emisivo, sonda de reflejos, \emph{bloom}, mapeo de tonos ACES y viñeta. El modelo 3D del carro se exportó desde el diseño CAD del chasis en Blender, sin el sensor y con el L298N.
+No se usaron elementos de interfaz por defecto de Unity. La interfaz se construyó con UI Toolkit \cite{uitk} y un tema vacío y estilos propios en USS, con una composición mínima: título, lista o tarjetas y un botón principal por pantalla. El código de color separa los dominios: ámbar para lo físico y cian para lo digital, rojo para choques y violeta para sonido. Las tipografías son de licencia libre (Russo One, Oswald, Liberation Sans). Los botones tienen estados de foco, paso del ratón y pulsación, con sonidos sintetizados en tiempo de ejecución. La escena usa URP con luces puntuales, neón emisivo, sonda de reflejos, \emph{bloom}, mapeo de tonos ACES y viñeta. El modelo 3D del carro se exportó desde el diseño CAD del chasis en Blender, sin el sensor y con el L298N.
 
 \section{Pruebas y resultados}
 \begin{table}[t]
