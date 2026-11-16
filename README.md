@@ -4,7 +4,7 @@ Experiencia físico-digital: un carro a control remoto con dos ESP32 (ESP-NOW) y
 
 Proyecto de Ingeniería Multimedia, Universidad de San Buenaventura Bogotá.
 
-![Misión manual](Docs/capturas/07_mision_retro.png)
+![Modo manual](Docs/capturas/04_manual.png)
 
 ## Contenido
 
@@ -30,12 +30,12 @@ El carro no usa Bluetooth. El firmware del control ocupa 1.6 MB, por eso necesit
 
 ## Experiencia en Unity
 
-Flujo: **Conexión (selección del puerto COM) → Menú → Misión manual / Modo automático → Resultados**. La interfaz es mínima: solo lo necesario en cada pantalla.
+Flujo: **Conexión (selección del puerto COM) → Menú → Modo manual / Modo automático**. La interfaz es mínima: solo lo necesario en cada pantalla.
 
 | Pantalla | Qué hace |
 |---|---|
 | Conexión | Lista los puertos (USB, BLUETOOTH, SISTEMA), conecta y avisa si el puerto está ocupado, es el del carro o no responde. Incluye modo demostración con teclado. |
-| Misión manual | 90 s para recoger celdas. Turbo: el carro real sube al 100 %. Aceite: baja al 35 % y vibra. Choque: freno de 400 ms. Cada evento enciende el LED y suena el zumbador. |
+| Modo manual | El joystick maneja el carro real y su gemelo. Al chocar con un muro en Unity, el carro real frena 400 ms, el LED parpadea y suena el zumbador. |
 | Modo automático | El carro ejecuta su rutina y el gemelo la replica con la telemetría. Cada paso dispara LED y tono. |
 
 Toda la interfaz es propia (UI Toolkit con tema vacío y estilos en `Assets/_Project/UI/Rally.uss`). Fuentes libres: Russo One, Oswald y Liberation Sans (licencia OFL).
@@ -46,7 +46,7 @@ Toda la interfaz es propia (UI Toolkit con tema vacío y estilos en `Assets/_Pro
 |---|---|---|
 | Visual | LED del control (D19) y LED integrado del carro (GPIO2) | `L,p` y `C,p`: apagado, fijo, lento, rápido, destello |
 | Sonora | Zumbador del control (D21, opcional) | `T,frecuencia,ms` |
-| Física | Motores del carro | `F,ms` freno, `V,ms` vibración, `S,0-100` velocidad permitida |
+| Física | Motores del carro | `F,ms` freno al chocar, `S,0-100` velocidad (0 en el menú, 100 al manejar); `V,ms` vibración disponible |
 
 ## Protocolo serial (115200 baudios, texto terminado en `\n`)
 
@@ -95,8 +95,8 @@ Para abrir el proyecto: Unity **6000.3.8f1**, carpeta `Unity/RallyMixto`, escena
 | Entrada | Acción |
 |---|---|
 | Joystick | Manejar (carro real y gemelo) |
-| Botón del joystick | Cambiar manual / automático (pausa la misión) |
-| Esc | Pausa / volver |
+| Botón del joystick | Cambiar manual / automático |
+| Esc | Volver al menú |
 | W A S D + Espacio | Joystick y botón en modo demostración |
 
 ## Autores

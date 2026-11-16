@@ -116,7 +116,7 @@ namespace RallyMixto
                 twin.LedPattern = hub.CarLedNow;
                 Sfx.I.engineLevel = Mathf.Abs(twin.Speed) / 4f;
             }
-            else Mission.DriveTwin(hub, twin, 100);
+            else ManualMode.DriveTwin(hub, twin, 100);
         }
     }
 }

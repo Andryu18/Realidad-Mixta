@@ -16,14 +16,13 @@ namespace RallyMixto
         [HideInInspector] public Arena arena;
         [HideInInspector] public Twin twin;
         [HideInInspector] public CameraRig rig;
-        [HideInInspector] public Mission mission;
+        [HideInInspector] public ManualMode manual;
         [HideInInspector] public AutoMode autoMode;
         [HideInInspector] public bool autoshots;
 
         public ConnectScreen connect;
         public MenuScreen menu;
-        public HudScreen hud;
-        public ResultsScreen results;
+        public ManualScreen manualScreen;
         public AutoScreen auto;
 
         VisualElement uiRoot, screens, topbar, toasts, chipDot;
@@ -47,8 +46,8 @@ namespace RallyMixto
             rig.target = twin.transform;
             rig.Snap();
 
-            mission = gameObject.AddComponent<Mission>();
-            mission.Init(arena, twin, rig);
+            manual = gameObject.AddComponent<ManualMode>();
+            manual.Init(arena, twin, rig);
             autoMode = gameObject.AddComponent<AutoMode>();
             autoMode.Init(arena, twin, rig);
 
@@ -93,8 +92,7 @@ namespace RallyMixto
 
             connect = Make<ConnectScreen>();
             menu = Make<MenuScreen>();
-            hud = Make<HudScreen>();
-            results = Make<ResultsScreen>();
+            manualScreen = Make<ManualScreen>();
             auto = Make<AutoScreen>();
         }
 
@@ -148,7 +146,7 @@ namespace RallyMixto
         {
             if (on)
             {
-                mission.Abort();
+                manual.Exit();
                 twin.Frozen = true;
                 twin.Braking = twin.Shaking = false;
                 arena.missionProps.SetActive(true);
@@ -226,30 +224,13 @@ namespace RallyMixto
             yield return Shot("03_menu");
             sim.forcedStick = Vector2.zero;
 
-            Show(hud);
-            yield return new WaitForSecondsRealtime(1.3f);
-            yield return Shot("04_cuenta_regresiva");
-            float t = 0, worst = 0;
-            int frames = 0;
-            bool shot5 = false, shot6 = false, shot7 = false;
-            while (t < 34f)
-            {
-                sim.forcedStick = Autopilot();
-                t += Time.unscaledDeltaTime;
-                frames++;
-                if (t > 2f) worst = Mathf.Max(worst, Time.unscaledDeltaTime);
-                if (!shot5 && t > 9f) { shot5 = true; yield return Shot("05_mision"); }
-                if (!shot6 && mission.BoostT > 2.5f && t > 12f) { shot6 = true; yield return Shot("06_mision_turbo"); }
-                if (!shot7 && t > 22f) { shot7 = true; yield return Shot("07_mision_retro"); }
-                yield return null;
-            }
-            if (!shot6) yield return Shot("06_mision_turbo");
-            File.WriteAllText(Path.Combine(dir, "rendimiento.txt"),
-                $"fps_promedio={frames / Mathf.Max(t, 0.01f):0.0}\nfps_minimo={1f / Mathf.Max(worst, 1e-4f):0.0}\nresolucion={Screen.width}x{Screen.height}\nceldas={mission.Cells}\nturbos={mission.Boosts}\nchoques={mission.Hits}\n");
-            mission.SetTimeLeft(0.5f);
-            yield return new WaitForSecondsRealtime(3.2f);
+            Show(manualScreen);
+            sim.forcedStick = new Vector2(-1000, 250);
+            yield return new WaitForSecondsRealtime(3f);
+            sim.forcedStick = new Vector2(-800, -500);
+            yield return new WaitForSecondsRealtime(2f);
+            yield return Shot("04_manual");
             sim.forcedStick = Vector2.zero;
-            yield return Shot("08_resultados");
 
             Show(auto);
             yield return new WaitForSecondsRealtime(9.5f);
@@ -264,26 +245,6 @@ namespace RallyMixto
             uiRoot.style.display = DisplayStyle.Flex;
             yield return wait;
             Application.Quit();
-        }
-
-        // piloto automatico hacia la celda mas cercana (solo capturas)
-        Vector2 Autopilot()
-        {
-            Transform best = null;
-            float bd = 1e9f;
-            foreach (var p in FindObjectsByType<Pickup>(FindObjectsSortMode.None))
-            {
-                if (p.kind != PickKind.Cell) continue;
-                float d = Vector3.Distance(p.transform.position, twin.transform.position);
-                if (d < bd) { bd = d; best = p.transform; }
-            }
-            if (!best) return new Vector2(-700, 0);
-            var to = best.position - twin.transform.position;
-            to.y = 0;
-            float ang = Vector3.SignedAngle(twin.transform.forward, to, Vector3.up);
-            float turn = Mathf.Clamp(ang / 45f, -1, 1) * 1000f;
-            float thr = Mathf.Abs(ang) > 70 ? 300 : 1000;
-            return new Vector2(-thr, turn);
         }
     }
 }

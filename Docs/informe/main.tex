@@ -24,7 +24,7 @@
 \maketitle
 
 \begin{abstract}
-Se presenta una experiencia físico-digital que integra un carro a control remoto con dos microcontroladores ESP32 y un videojuego desarrollado en Unity. El ESP32 del control lee un joystick, envía las órdenes al ESP32 del carro por ESP-NOW y, al mismo tiempo, actúa como puente con el computador por Bluetooth Clásico o por USB. Unity recibe a 20~Hz la posición del joystick, el modo de operación y la telemetría de los motores, y con ella mueve un gemelo digital del carro. En sentido contrario, Unity envía tres tipos de retroalimentación: visual (LED del control y del carro), sonora (zumbador) y física (freno, vibración y límite de velocidad de los motores). La aplicación se entrega como ejecutable para Windows con una interfaz propia, permite elegir el puerto de conexión desde la misma pantalla y tiene un flujo completo y minimalista de conexión, menú, misión, modo automático y resultados.
+Se presenta una experiencia físico-digital que integra un carro a control remoto con dos microcontroladores ESP32 y un videojuego desarrollado en Unity. El ESP32 del control lee un joystick, envía las órdenes al ESP32 del carro por ESP-NOW y, al mismo tiempo, actúa como puente con el computador por Bluetooth Clásico o por USB. Unity recibe a 20~Hz la posición del joystick, el modo de operación y la telemetría de los motores, y con ella mueve un gemelo digital del carro. En sentido contrario, Unity envía tres tipos de retroalimentación: visual (LED del control y del carro), sonora (zumbador) y física (freno y velocidad permitida de los motores). La aplicación se entrega como ejecutable para Windows con una interfaz propia, permite elegir el puerto de conexión desde la misma pantalla y tiene un flujo sencillo: conexión, menú, modo manual y modo automático.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -105,32 +105,31 @@ Como el producto es un ejecutable, el puerto se elige en la propia interfaz (Fig
 \label{fig:con}
 \end{figure}
 
-\subsection{Misión manual}
-Durante 90~s el jugador recoge celdas de energía en una arena (Fig.~\ref{fig:mis}). El gemelo digital se mueve con la telemetría del carro: la velocidad lineal es el promedio del PWM de ambos lados y la angular su diferencia, igual que la tracción diferencial del vehículo real. Si el carro no tiene enlace, Unity aplica la misma mezcla del firmware sobre el joystick. Cada evento del juego genera retroalimentación en el hardware (Tabla~\ref{tab:retro}). El HUD solo muestra puntaje, tiempo y el efecto activo (turbo o aceite), para no distraer del carro real.
+\subsection{Modo manual}
+El joystick maneja el carro real y, al mismo tiempo, el gemelo digital en una pista con muros (Fig.~\ref{fig:man}). El gemelo se mueve con la telemetría del carro: la velocidad lineal es el promedio del PWM de ambos lados y la angular su diferencia, igual que la tracción diferencial del vehículo. Si el carro no tiene enlace, Unity aplica la misma mezcla del firmware sobre el joystick. La Tabla~\ref{tab:retro} resume la retroalimentación.
 
 \begin{table}[t]
 \centering
-\caption{Eventos del juego y retroalimentación al hardware}
+\caption{Eventos en Unity y retroalimentación al hardware}
 \label{tab:retro}
 \begin{tabular}{@{}lll@{}}
 \toprule
-Evento & Visual / sonora & Física (carro) \\
+Evento & Visual / sonora & Física (carro) \
 \midrule
-Cuenta regresiva & destello + 880 Hz & velocidad 0 \% \\
-Celda recogida & destello + 1760 Hz & --- \\
-Turbo & LED rápido + 1200 Hz & velocidad 100 \% \\
-Aceite & LED lento + 220 Hz & 35 \% + vibración \\
-Choque con muro & LED rápido + 140 Hz & freno 400 ms \\
-Fin de misión & LED lento + melodía & velocidad 0 \% \\
+Entrar al menú & LED fijo & velocidad 0 \% \
+Entrar a modo manual & LED fijo (control y carro) & velocidad 100 \% \
+Choque con muro & LED rápido + 140 Hz & freno 400 ms \
+Paso de la rutina & destello + 660 Hz & --- \
+Fin de la rutina & LED fijo + melodía & --- \
 \bottomrule
 \end{tabular}
 \end{table}
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\linewidth]{../capturas/07_mision_retro.png}
-\caption{Misión manual: puntaje, tiempo y gemelo digital.}
-\label{fig:mis}
+\includegraphics[width=\linewidth]{../capturas/04_manual.png}
+\caption{Modo manual: el gemelo digital sigue al carro real.}
+\label{fig:man}
 \end{figure}
 
 \subsection{Modo automático}

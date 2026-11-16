@@ -178,16 +178,13 @@ namespace RallyMixto
     public class MenuScreen : UiScreen
     {
         Button first;
-        Label best;
 
         protected override void Build()
         {
             root.AddToClassList("menu");
             var left = Ui.El(root);
-            Ui.Text(left, "Elige un modo", "h1");
-            first = Card(left, "Misión manual", "Recoge celdas en 90 s con el joystick.", () => app.Show(app.hud));
-            best = Ui.Text(first.Q(className: "mode-body"), "", "small");
-            best.style.color = Pal.Amber;
+            Ui.Text(left, "Menú", "h1");
+            first = Card(left, "Modo manual", "Maneja el carro con el joystick. El gemelo lo sigue.", () => app.Show(app.manualScreen));
             Card(left, "Modo automático", "El carro hace su rutina y el gemelo la replica.", () => app.Show(app.auto));
 
             var row = Ui.El(left, "btn-row");
@@ -215,206 +212,43 @@ namespace RallyMixto
             hub.SetSpeed(0);
             hub.SetLed(Led.On, "Conectado");
             hub.SetCarLed(Led.Off);
-            int b = PlayerPrefs.GetInt("best", 0);
-            best.text = b > 0 ? "Récord: " + b + " pts" : "";
             first.Focus();
             Sfx.I.Music(0.22f);
         }
     }
 
-    // hud de la mision
-    public class HudScreen : UiScreen
+    // modo manual
+    public class ManualScreen : UiScreen
     {
-        Label timer, score, countdown, effectText;
-        VisualElement timeFill, effect, effectPill, modal;
-        Label modalBody;
-        readonly List<Label> popups = new List<Label>();
-        int popupNext, lastCount = -1;
-        Mission m => app.mission;
-        float tFinish;
+        Label status;
+        ManualMode m => app.manual;
 
         protected override void Build()
         {
-            var sb = Ui.El(root, "score-box");
-            Ui.Text(sb, "PUNTAJE", "label-caps");
-            score = Ui.Text(sb, "0", "score");
-
             var top = Ui.El(root, "hud-top");
-            timer = Ui.Text(top, "01:30", "timer");
-            var bar = Ui.El(top, "timebar");
-            timeFill = Ui.El(bar, "timebar-fill");
+            var t = Ui.Text(top, "MODO MANUAL", "timer");
+            t.style.fontSize = 48;
+            status = Ui.Text(top, "", "label-caps");
 
-            effect = Ui.El(root, "effect");
-            effectPill = Ui.El(effect, "effect-pill");
-            effectText = Ui.Text(effectPill, "", "effect-text");
-
-            countdown = Ui.Text(root, "", "countdown");
-            for (int i = 0; i < 3; i++)
-            {
-                var p = Ui.Text(root, "", "popup", "popup--go");
-                p.pickingMode = PickingMode.Ignore;
-                popups.Add(p);
-            }
-
-            modal = Ui.El(root, "layer", "modal");
-            var card = Ui.El(modal, "panel", "modal-card");
-            Ui.Text(card, "Pausa", "h1");
-            modalBody = Ui.Text(card, "", "body");
-            modalBody.style.marginBottom = 18;
-            Ui.Btn(card, "REANUDAR", Resume, "btn--primary");
-            Ui.Btn(card, "SALIR AL MENÚ", () => { m.Abort(); app.Show(app.menu); }, "btn--ghost");
-            Ui.Show(modal, false);
+            var back = Ui.Btn(root, "VOLVER", () => app.Show(app.menu));
+            back.style.position = Position.Absolute;
+            back.style.left = 56;
+            back.style.bottom = 48;
         }
 
         public override void OnShow()
         {
             app.ToShowcase(false);
-            m.Popup += OnPopup;
-            m.Finished += OnFinished;
-            hub.Button += OnButton;
-            Ui.Show(modal, false);
+            m.Enter();
             Sfx.I.Music(0.08f);
-            m.Begin();
-            tFinish = 0;
-            lastCount = -1;
+            root.Q<Button>().Focus();
         }
 
-        public override void OnHide()
-        {
-            m.Popup -= OnPopup;
-            m.Finished -= OnFinished;
-            hub.Button -= OnButton;
-            Time.timeScale = 1;
-        }
-
-        void OnFinished() { tFinish = 0.001f; }
-
-        void OnButton(int mode)
-        {
-            if (mode == 0 && m.state == Mission.State.Running) Pause("Cambiaste a automático desde el control.");
-            else if (mode == 1 && m.state == Mission.State.Paused) Resume();
-        }
-
-        void Pause(string why)
-        {
-            m.Pause(true);
-            modalBody.text = why;
-            Ui.Show(modal, true);
-            modal.Q<Button>().Focus();
-        }
-
-        void Resume()
-        {
-            Ui.Show(modal, false);
-            m.Pause(false);
-        }
-
-        public override void OnBack()
-        {
-            if (m.state == Mission.State.Running) Pause("El carro está detenido.");
-            else if (m.state == Mission.State.Paused) Resume();
-        }
-
-        void OnPopup(string text, string color)
-        {
-            var p = popups[popupNext++ % popups.Count];
-            p.text = text;
-            foreach (var c in new[] { "cyan", "amber", "violet", "red" }) p.RemoveFromClassList("popup--" + c);
-            p.AddToClassList("popup--" + color);
-            p.RemoveFromClassList("popup--go");
-            p.style.transitionDuration = new List<TimeValue> { new TimeValue(0) };
-            p.schedule.Execute(() =>
-            {
-                p.style.transitionDuration = StyleKeyword.Null;
-                p.AddToClassList("popup--go");
-            }).ExecuteLater(60);
-        }
+        public override void OnHide() { m.Exit(); }
 
         public override void Tick(float dt)
         {
-            int secs = Mathf.CeilToInt(m.TimeLeft);
-            timer.text = $"{secs / 60:00}:{secs % 60:00}";
-            timer.EnableInClassList("timer--warn", secs <= 10);
-            timeFill.style.width = Length.Percent(m.TimeLeft / Mission.Duration * 100f);
-            timeFill.style.backgroundColor = secs <= 10 ? Pal.Red : Pal.Amber;
-            score.text = m.Score.ToString();
-
-            if (m.state == Mission.State.Countdown)
-            {
-                int n = Mathf.CeilToInt(m.Countdown);
-                if (n != lastCount)
-                {
-                    lastCount = n;
-                    countdown.text = n.ToString();
-                    countdown.RemoveFromClassList("countdown--pop");
-                    countdown.schedule.Execute(() => countdown.AddToClassList("countdown--pop")).ExecuteLater(500);
-                }
-            }
-            else if (lastCount != 0)
-            {
-                lastCount = 0;
-                countdown.text = m.state == Mission.State.Running ? "¡YA!" : "";
-                countdown.schedule.Execute(() => countdown.text = "").ExecuteLater(600);
-            }
-
-            bool boost = m.BoostT > 0, oil = m.OilT > 0;
-            Ui.Show(effect, boost || oil);
-            effectPill.EnableInClassList("effect-pill--amber", boost);
-            effectPill.EnableInClassList("effect-pill--violet", oil);
-            if (boost) effectText.text = "TURBO";
-            if (oil) effectText.text = "ACEITE";
-
-            if (tFinish > 0)
-            {
-                tFinish += dt;
-                if (tFinish > 1.4f) app.Show(app.results);
-            }
-        }
-    }
-
-    // resultados
-    public class ResultsScreen : UiScreen
-    {
-        Label eyebrow, score, sCells, sHits, sBest;
-
-        protected override void Build()
-        {
-            root.AddToClassList("results");
-            var card = Ui.El(root, "panel", "results-card");
-            eyebrow = Ui.Text(card, "MISIÓN COMPLETA", "eyebrow");
-            score = Ui.Text(card, "0", "h1");
-            score.style.fontSize = 96;
-            score.style.marginBottom = 0;
-            Ui.Text(card, "PUNTOS", "label-caps");
-            var stats = Ui.El(card, "stats");
-            sCells = Stat(stats, "CELDAS");
-            sHits = Stat(stats, "CHOQUES");
-            sBest = Stat(stats, "RÉCORD");
-            var row = Ui.El(card, "btn-row");
-            Ui.Btn(row, "JUGAR DE NUEVO", () => app.Show(app.hud), "btn--primary").style.width = 320;
-            Ui.El(row, "gap");
-            Ui.Btn(row, "MENÚ", () => app.Show(app.menu)).style.width = 200;
-        }
-
-        static Label Stat(VisualElement p, string key)
-        {
-            var s = Ui.El(p, "stat");
-            var v = Ui.Text(s, "0", "stat-val");
-            Ui.Text(s, key, "stat-key");
-            return v;
-        }
-
-        public override void OnShow()
-        {
-            var m = app.mission;
-            app.ToShowcase(true);
-            eyebrow.text = m.NewBest ? "¡NUEVO RÉCORD!" : "MISIÓN COMPLETA";
-            score.text = m.Score.ToString();
-            sCells.text = m.Cells.ToString();
-            sHits.text = m.Hits.ToString();
-            sBest.text = m.Best.ToString();
-            root.Q<Button>().Focus();
-            Sfx.I.Music(0.22f);
+            status.text = hub.Mode == 0 ? "EL CONTROL ESTÁ EN AUTOMÁTICO: PULSA EL BOTÓN DEL JOYSTICK" : "CHOQUES: " + m.Hits;
         }
 
         public override void OnBack() { app.Show(app.menu); }
