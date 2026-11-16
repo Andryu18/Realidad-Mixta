@@ -24,15 +24,15 @@ def lab(ax, x, y, t, c):
 
 
 # arquitectura
-fig, ax = plt.subplots(figsize=(7.2, 2.6))
-ax.set_xlim(0, 10.4); ax.set_ylim(0.4, 3.6); ax.axis("off")
-box(ax, 0.1, 0.7, 2.4, 2.6, "Unity (PC)", ["UI propia (UI Toolkit)", "Gemelo digital URP", "Misión / Auto / Diagnóstico", "System.IO.Ports"], CY)
-box(ax, 4.0, 0.7, 2.4, 2.6, "ESP32 control", ["Joystick + botón", "LED D19, zumbador D21", "USB + Bluetooth SPP", "ESP-NOW canal 1"], AMB)
-box(ax, 7.9, 0.7, 2.4, 2.6, "ESP32 carro", ["L298N + 4 motores TT", "LED GPIO2", "Modos RC y AUTO", "Telemetría 20 Hz"], AMB)
-arrow(ax, 3.95, 2.45, 2.55, 2.45, CY); lab(ax, 3.25, 2.95, "D (20 Hz): joystick,\nmodo, motores, paso", CY)
-arrow(ax, 2.55, 1.45, 3.95, 1.45, CY); lab(ax, 3.25, 0.95, "L C T F V S M R:\nLED, tono, freno...", CY)
-arrow(ax, 6.45, 2.45, 7.85, 2.45, AMB); lab(ax, 7.15, 2.95, "ctrl_packet: x, y,\nmodo, velocidad, orden", AMB)
-arrow(ax, 7.85, 1.45, 6.45, 1.45, AMB); lab(ax, 7.15, 0.95, "car_packet:\nmotA, motB, paso", AMB)
+fig, ax = plt.subplots(figsize=(8.0, 2.6))
+ax.set_xlim(0, 11.6); ax.set_ylim(0.4, 3.6); ax.axis("off")
+box(ax, 0.1, 0.7, 2.4, 2.6, "Unity (PC)", ["UI propia (UI Toolkit)", "Gemelo digital URP", "Modo manual / automático", "System.IO.Ports"], CY)
+box(ax, 4.6, 0.7, 2.4, 2.6, "ESP32 control", ["Joystick + botón", "LED D19, zumbador D21", "USB + Bluetooth SPP", "ESP-NOW canal 1"], AMB)
+box(ax, 9.1, 0.7, 2.4, 2.6, "ESP32 carro", ["L298N + 2 motores TT", "LED GPIO2", "Modos manual y auto", "Telemetría 20 Hz"], AMB)
+arrow(ax, 4.55, 2.45, 2.55, 2.45, CY); lab(ax, 3.55, 2.95, "D (20 Hz): joystick,\nmodo, motores, paso", CY)
+arrow(ax, 2.55, 1.45, 4.55, 1.45, CY); lab(ax, 3.55, 0.95, "L C T F V S M R:\nLED, tono, freno...", CY)
+arrow(ax, 7.05, 2.45, 9.05, 2.45, AMB); lab(ax, 8.05, 2.95, "ctrl_packet: x, y,\nmodo, velocidad, orden", AMB)
+arrow(ax, 9.05, 1.45, 7.05, 1.45, AMB); lab(ax, 8.05, 0.95, "car_packet:\nmotA, motB, paso", AMB)
 fig.tight_layout(); fig.savefig("figs/arquitectura.png", dpi=300); plt.close(fig)
 
 # flujo de pantallas
