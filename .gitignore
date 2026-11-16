@@ -1,0 +1,25 @@
+# unity
+Unity/RallyMixto/[Ll]ibrary/
+Unity/RallyMixto/[Tt]emp/
+Unity/RallyMixto/[Oo]bj/
+Unity/RallyMixto/[Ll]ogs/
+Unity/RallyMixto/[Uu]ser[Ss]ettings/
+Unity/RallyMixto/*.csproj
+Unity/RallyMixto/*.sln
+Unity/RallyMixto/*.slnx
+Unity/RallyMixto/.vs/
+Unity/RallyMixto/.vscode/
+
+# build suelto (se entrega comprimido en Build/)
+Build/RallyMixto/
+Build/*_BurstDebugInformation_DoNotShip/
+
+# arduino
+Car_ESP32/build/
+CONTROLLER/build/
+
+# trabajo local
+_work/
+Docs/informe/*.aux
+Docs/informe/*.log
+Docs/informe/*.out

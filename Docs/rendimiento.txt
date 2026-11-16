@@ -1,0 +1,6 @@
+fps_promedio=71.9
+fps_minimo=71.8
+resolucion=1920x1080
+celdas=3
+turbos=1
+choques=2
