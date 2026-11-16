@@ -102,9 +102,9 @@ const unsigned long T_FAILSAFE = 500;  // Stop if no data (ms)
 //  Obstacle avoidance (AUTO only)
 // Keep DIST_STOP < DIST_FREE < DIST_CLEAR
 const bool USE_SENSOR = true;
-const int DIST_STOP  = 10;   // cm, brake and avoid
-const int DIST_FREE  = 20;   // cm, obstacle gone
-const int DIST_CLEAR = 40;   // cm, new heading OK
+const int DIST_STOP  = 25;   // cm, brake and avoid
+const int DIST_FREE  = 35;   // cm, obstacle gone
+const int DIST_CLEAR = 50;   // cm, new heading OK
 const unsigned long T_MEASURE    = 60;     // ms readings
 const unsigned long ECHO_TIMEOUT = 12000;
 
@@ -468,7 +468,7 @@ void updateAuto() {
 
 void driveRC(int16_t x, int16_t y) {
   int throttle = -x;  // X- forward
-  int turn     = -y;  // Y- right
+  int turn     = y;  // Y- right
 
   // Tank mixing
   int motorA = constrain(throttle + turn, -1000, 1000);  // Left
