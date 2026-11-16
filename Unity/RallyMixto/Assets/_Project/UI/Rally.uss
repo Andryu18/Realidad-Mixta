@@ -294,3 +294,10 @@
 .toast-text { font-size: 19px; }
 
 .vignette { -unity-background-scale-mode: stretch-to-fill; }
+
+/* registro serial */
+.serial-log { position: absolute; right: 32px; bottom: 32px; width: 560px; padding: 14px 18px; border-radius: 14px; border-width: 1px; border-color: var(--line-2); background-color: rgba(8, 11, 16, 0.82); }
+.serial-head { -unity-font: url("../Fonts/Oswald-Bold.ttf"); -unity-font-definition: initial; font-size: 14px; letter-spacing: 2px; color: var(--cyan); margin-bottom: 6px; }
+.serial-tele { font-size: 16px; color: var(--amber); margin-bottom: 8px; }
+.serial-row { font-size: 14px; color: var(--muted); height: 20px; overflow: hidden; white-space: nowrap; }
+.serial-row--tx { color: var(--text); }

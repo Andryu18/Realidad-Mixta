@@ -22,6 +22,7 @@
 #include <WiFi.h>
 #include <esp_wifi.h>
 #include <BluetoothSerial.h>
+#include <esp_coexist.h>
 
 #define JOY_X_PIN  35
 #define JOY_Y_PIN  34
@@ -268,6 +269,9 @@ void setup() {
   ledcAttach(BUZZER_PIN, 2000, 8);
   ledcWriteTone(BUZZER_PIN, 0);
 
+  // bluetooth primero para que siempre sea visible
+  SerialBT.begin(BT_NAME);
+
   WiFi.mode(WIFI_STA);
   WiFi.disconnect();
 
@@ -290,8 +294,8 @@ void setup() {
     while (1);
   }
 
-  // bluetooth clasico (spp) junto a esp-now
-  SerialBT.begin(BT_NAME);
+  // prioridad de radio al bluetooth
+  esp_coex_preference_set(ESP_COEX_PREFER_BT);
   sendLine("H,CarroRM," FW_VER);
 }
 

@@ -37,6 +37,8 @@ namespace RallyMixto
 
         public readonly List<string> RxLog = new List<string>();
         public readonly List<string> TxLog = new List<string>();
+        public readonly List<string> SerialLog = new List<string>();
+        public int LogVersion { get; private set; }
         public readonly Dictionary<string, int> Stats = new Dictionary<string, int>();
 
         float tOpen, tPing, tKeep, hzWindow;
@@ -152,10 +154,15 @@ namespace RallyMixto
 
         static int I0(string s) => int.TryParse(s, out var v) ? v : 0;
 
-        static void Log(List<string> list, string s)
+        void Log(List<string> list, string s)
         {
-            list.Add(DateTime.Now.ToString("HH:mm:ss.f") + "  " + s);
+            var t = DateTime.Now.ToString("HH:mm:ss.f");
+            list.Add(t + "  " + s);
             if (list.Count > 40) list.RemoveAt(0);
+            // registro combinado para el hud
+            SerialLog.Add(t + (list == TxLog ? "  > " : "  < ") + s);
+            if (SerialLog.Count > 40) SerialLog.RemoveAt(0);
+            LogVersion++;
         }
 
         void Send(string cmd)

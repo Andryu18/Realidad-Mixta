@@ -217,10 +217,47 @@ namespace RallyMixto
         }
     }
 
+    // registro serial en la esquina inferior derecha
+    public class SerialLogView
+    {
+        const int Rows = 9;
+        static readonly string[] States = { "normal", "rutina", "fin", "frenando", "vibrando" };
+        readonly Label head, tele;
+        readonly Label[] rows = new Label[Rows];
+        int ver = -1;
+
+        public SerialLogView(VisualElement parent)
+        {
+            var box = Ui.El(parent, "serial-log");
+            head = Ui.Text(box, "", "serial-head");
+            tele = Ui.Text(box, "", "serial-tele");
+            for (int i = 0; i < Rows; i++) rows[i] = Ui.Text(box, "", "serial-row");
+        }
+
+        public void Tick()
+        {
+            var h = Hub.I;
+            head.text = $"SERIAL · {h.PortName} · {h.RxHz:0} Hz · {(h.CarLink ? "CARRO ENLAZADO" : "SIN ENLACE")}";
+            string st = h.CarState >= 0 && h.CarState < States.Length ? States[h.CarState] : h.CarState.ToString();
+            tele.text = $"motA {h.MotA,4}  motB {h.MotB,4}  vel {h.Speed}%  {st}";
+            if (ver == h.LogVersion) return;
+            ver = h.LogVersion;
+            var log = h.SerialLog;
+            for (int i = 0; i < Rows; i++)
+            {
+                int k = log.Count - Rows + i;
+                var line = k >= 0 ? log[k] : "";
+                rows[i].text = line;
+                Ui.Toggle(rows[i], "serial-row--tx", line.Contains("  > "));
+            }
+        }
+    }
+
     // modo manual
     public class ManualScreen : UiScreen
     {
         Label status;
+        SerialLogView log;
         ManualMode m => app.manual;
 
         protected override void Build()
@@ -234,6 +271,7 @@ namespace RallyMixto
             back.style.position = Position.Absolute;
             back.style.left = 56;
             back.style.bottom = 48;
+            log = new SerialLogView(root);
         }
 
         public override void OnShow()
@@ -249,6 +287,7 @@ namespace RallyMixto
         public override void Tick(float dt)
         {
             status.text = hub.Mode == 0 ? "EL CONTROL ESTÁ EN AUTOMÁTICO: PULSA EL BOTÓN DEL JOYSTICK" : "CHOQUES: " + m.Hits;
+            log.Tick();
         }
 
         public override void OnBack() { app.Show(app.menu); }
@@ -258,6 +297,7 @@ namespace RallyMixto
     public class AutoScreen : UiScreen
     {
         Label current;
+        SerialLogView log;
         AutoMode a => app.autoMode;
 
         protected override void Build()
@@ -273,6 +313,7 @@ namespace RallyMixto
             Ui.Btn(row, "REINICIAR RUTINA", () => a.Restart(), "btn--primary");
             Ui.El(row, "gap");
             Ui.Btn(row, "VOLVER", () => app.Show(app.menu));
+            log = new SerialLogView(root);
         }
 
         public override void OnShow()
@@ -289,6 +330,7 @@ namespace RallyMixto
         {
             if (a.Step != 255) current.text = $"PASO {a.Step + 1}/{AutoRoutine.Steps.Length} · {AutoRoutine.Steps[a.Step].name.ToUpper()}";
             else current.text = a.Done ? "RUTINA COMPLETA" : hub.Mode == 1 ? "CONTROL EN MANUAL" : "ESPERANDO AL CARRO";
+            log.Tick();
         }
 
         public override void OnBack() { app.Show(app.menu); }
