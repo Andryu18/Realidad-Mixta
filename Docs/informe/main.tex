@@ -332,7 +332,7 @@ El carro ejecuta su rutina y Unity muestra el paso que reporta, mientras el geme
 \end{figure}
 
 \subsubsection{Diseño visual y de interacción}
-No se usaron elementos de interfaz por defecto de Unity. La interfaz se construyó con UI Toolkit~\cite{uitk}, un tema vacío y estilos propios en USS, con una composición mínima: título, lista o tarjetas y un botón principal por pantalla. El color separa los dominios: ámbar para lo físico, cian para lo digital y rojo para los choques. Las tipografías son de licencia libre (Russo One, Oswald, Liberation Sans). Los botones tienen estados de foco, paso del ratón y pulsación, con sonidos sintetizados en tiempo de ejecución. La escena usa URP con luces puntuales, neón emisivo, sonda de reflejos, \emph{bloom}, mapeo de tonos ACES y viñeta.
+No se usaron elementos de interfaz por defecto de Unity. La interfaz se construyó con UI Toolkit~\cite{uitk}, un tema vacío y estilos propios en USS, con una composición mínima: título, lista o tarjetas y un botón principal por pantalla. El color separa los dominios: ámbar para lo físico, cian para lo digital y rojo para los choques. Las tipografías son de licencia libre (Russo One, Oswald, Liberation Sans). Los botones tienen estados de foco, paso del ratón y pulsación; la aplicación no reproduce sonidos, y toda la retroalimentación sonora sale del zumbador del control. Todos los objetos (arena, gemelo, cámara, luces, interfaz y lógica) están guardados en la escena y se editan desde la jerarquía de Unity. La escena usa URP con luces puntuales, neón emisivo, sonda de reflejos, \emph{bloom}, mapeo de tonos ACES y viñeta.
 
 \subsection{Obstáculos encontrados}
 Durante el desarrollo, y desde el corte anterior, se presentaron las siguientes dificultades.

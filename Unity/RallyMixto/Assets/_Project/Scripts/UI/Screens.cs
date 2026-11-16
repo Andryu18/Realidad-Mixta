@@ -95,7 +95,6 @@ namespace RallyMixto
                 item.RegisterCallback<ClickEvent>(e =>
                 {
                     selected = name;
-                    Sfx.I.Play("click");
                     foreach (var c in list.Children()) Ui.Toggle(c, "port--sel", false);
                     item.AddToClassList("port--sel");
                     if (e.clickCount == 2) Connect();
@@ -134,7 +133,6 @@ namespace RallyMixto
                 default: msg = $"No se pudo abrir {port}."; break;
             }
             SetStatus("err", msg);
-            Sfx.I.Play("error");
         }
 
         public override void Tick(float dt)
@@ -149,7 +147,6 @@ namespace RallyMixto
                 else if (ph == LinkPhase.Ready)
                 {
                     SetStatus("ok", hub.IsDemo ? "Demostración: W A S D y Espacio." : $"Conectado a {hub.PortName}");
-                    Sfx.I.Play("connect");
                     tReady = 0;
                 }
                 else if (ph == LinkPhase.Failed) ShowFail();
@@ -195,9 +192,8 @@ namespace RallyMixto
 
         Button Card(VisualElement p, string title, string desc, System.Action go)
         {
-            var b = new Button(() => { Sfx.I.Play("click"); go(); });
+            var b = new Button(go);
             b.AddToClassList("mode-card");
-            b.RegisterCallback<MouseEnterEvent>(_ => Sfx.I.Play("hover"));
             var body = Ui.El(b, "mode-body");
             Ui.Text(body, title, "mode-title");
             Ui.Text(body, desc, "mode-desc");
@@ -213,7 +209,6 @@ namespace RallyMixto
             hub.SetLed(Led.On, "Conectado");
             hub.SetCarLed(Led.Off);
             first.Focus();
-            Sfx.I.Music(0.22f);
         }
     }
 
@@ -278,7 +273,6 @@ namespace RallyMixto
         {
             app.ToShowcase(false);
             m.Enter();
-            Sfx.I.Music(0.08f);
             root.Q<Button>().Focus();
         }
 
@@ -286,7 +280,7 @@ namespace RallyMixto
 
         public override void Tick(float dt)
         {
-            status.text = hub.Mode == 0 ? "EL CONTROL ESTÁ EN AUTOMÁTICO: PULSA EL BOTÓN DEL JOYSTICK" : "CHOQUES: " + m.Hits;
+            status.text = hub.Mode == 0 ? "EL CONTROL ESTÁ EN AUTOMÁTICO: PULSA EL BOTÓN DEL JOYSTICK" : "";
             log.Tick();
         }
 
@@ -320,7 +314,6 @@ namespace RallyMixto
         {
             app.ToShowcase(false);
             a.Enter();
-            Sfx.I.Music(0.1f);
             root.Q<Button>().Focus();
         }
 

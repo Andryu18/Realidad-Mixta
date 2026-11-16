@@ -14,8 +14,8 @@ namespace RallyMixto
         public float autoYaw = 90f;
         public Vector3 showcasePos = new Vector3(0, 0, 0);
 
-        MaterialLibrary lib;
-        ParticleSystem sparks;
+        [SerializeField] MaterialLibrary lib;
+        [SerializeField] ParticleSystem sparks;
 
         public static Arena Build(MaterialLibrary lib)
         {
@@ -34,7 +34,7 @@ namespace RallyMixto
             g.transform.localPosition = pos;
             g.transform.localScale = size;
             g.GetComponent<Renderer>().sharedMaterial = m;
-            if (!collider) Destroy(g.GetComponent<Collider>());
+            if (!collider) DestroyImmediate(g.GetComponent<Collider>());
             return g;
         }
 
@@ -53,7 +53,7 @@ namespace RallyMixto
             floor.transform.localScale = new Vector3(16, 1, 16);
             floor.GetComponent<Renderer>().sharedMaterial = floorMat;
             floor.GetComponent<Renderer>().receiveShadows = true;
-            Destroy(floor.GetComponent<Collider>());
+            DestroyImmediate(floor.GetComponent<Collider>());
 
             // reflejos de neones en piso y carro
             var probe = new GameObject("Reflejos").AddComponent<ReflectionProbe>();
@@ -144,7 +144,7 @@ namespace RallyMixto
             g.transform.localPosition = pos + Vector3.up * 1.1f;
             g.transform.localScale = new Vector3(1.4f, 1.1f, 1.4f);
             g.GetComponent<Renderer>().sharedMaterial = lib.wall;
-            Destroy(g.GetComponent<Collider>());
+            DestroyImmediate(g.GetComponent<Collider>());
             var c = g.AddComponent<CapsuleCollider>();
             c.radius = 0.5f;
             c.height = 2f;
@@ -172,7 +172,7 @@ namespace RallyMixto
             l.intensity = 6f;
         }
 
-        ReflectionProbe probe;
+        [SerializeField] ReflectionProbe probe;
         int probeFrames;
 
         void LateUpdate()

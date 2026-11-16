@@ -60,7 +60,6 @@ namespace RallyMixto
             hub.SetSpeed(0);
             hub.SetLed(Led.Off);
             hub.SetCarLed(Led.Off);
-            Sfx.I.engineLevel = 0;
         }
 
         void Update()
@@ -89,14 +88,12 @@ namespace RallyMixto
                 if (step != 255)
                 {
                     stepT = 0;
-                    Sfx.I.Play("step");
                     hub.Tone(660, 90, "Paso " + (step + 1) + ": " + AutoRoutine.Steps[step].name);
                     hub.FlashAll("Paso " + (step + 1));
                 }
                 else if (lastStep == AutoRoutine.Steps.Length - 1)
                 {
                     Done = true;
-                    Sfx.I.Play("win");
                     hub.Melody(new[] { 784, 1046 }, 180, "Rutina completa");
                     hub.SetLed(Led.On, "Rutina completa");
                     hub.SetCarLed(Led.On);
@@ -114,7 +111,6 @@ namespace RallyMixto
                 twin.Braking = false;
                 twin.Shaking = false;
                 twin.LedPattern = hub.CarLedNow;
-                Sfx.I.engineLevel = Mathf.Abs(twin.Speed) / 4f;
             }
             else ManualMode.DriveTwin(hub, twin, 100);
         }

@@ -23,14 +23,15 @@ namespace RallyMixto
         public event Action<float> Hit;
         public event Action<Collider> Touched;
 
-        Rigidbody rb;
-        Transform visual;
-        readonly List<Transform> left = new List<Transform>();
-        readonly List<Transform> right = new List<Transform>();
-        Renderer[] brakeLights;
-        Renderer led;
-        MaterialLibrary lib;
-        float v, w, stun, wheelR = 0.2f;
+        [SerializeField] Rigidbody rb;
+        [SerializeField] Transform visual;
+        [SerializeField] List<Transform> left = new List<Transform>();
+        [SerializeField] List<Transform> right = new List<Transform>();
+        [SerializeField] Renderer[] brakeLights;
+        [SerializeField] Renderer led;
+        [SerializeField] MaterialLibrary lib;
+        [SerializeField] float wheelR = 0.2f;
+        float v, w, stun;
 
         public static void Mix(int throttle, int turn, out int a, out int b)
         {
@@ -100,7 +101,7 @@ namespace RallyMixto
             for (int i = 0; i < 2; i++)
             {
                 var bl = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                Destroy(bl.GetComponent<Collider>());
+                DestroyImmediate(bl.GetComponent<Collider>());
                 bl.name = "Luz_Freno";
                 bl.transform.SetParent(vis, false);
                 bl.transform.localScale = new Vector3(0.18f, 0.06f, 0.02f);
@@ -115,7 +116,7 @@ namespace RallyMixto
             {
                 var r = pcb.GetComponent<Renderer>();
                 var l = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                Destroy(l.GetComponent<Collider>());
+                DestroyImmediate(l.GetComponent<Collider>());
                 l.name = "LED_GPIO2";
                 l.transform.SetParent(vis, false);
                 l.transform.position = r.bounds.center + Vector3.up * (r.bounds.extents.y + 0.03f);

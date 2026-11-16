@@ -3,7 +3,6 @@ using UnityEngine;
 namespace RallyMixto
 {
     // materiales urp creados en el editor (asi entran al build)
-    [CreateAssetMenu(menuName = "Rally Mixto/Material Library")]
     public class MaterialLibrary : ScriptableObject
     {
         [Header("carro")]

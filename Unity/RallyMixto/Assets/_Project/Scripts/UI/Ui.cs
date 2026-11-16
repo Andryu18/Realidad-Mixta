@@ -44,10 +44,9 @@ namespace RallyMixto
 
         public static Button Btn(VisualElement parent, string text, Action onClick, params string[] cls)
         {
-            var b = new Button(() => { Sfx.I?.Play("click"); onClick?.Invoke(); }) { text = text };
+            var b = new Button(() => onClick?.Invoke()) { text = text };
             b.AddToClassList("btn");
             foreach (var c in cls) b.AddToClassList(c);
-            b.RegisterCallback<MouseEnterEvent>(_ => { if (b.enabledSelf) Sfx.I?.Play("hover"); });
             parent?.Add(b);
             return b;
         }

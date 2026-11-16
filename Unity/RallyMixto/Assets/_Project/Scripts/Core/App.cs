@@ -8,16 +8,16 @@ namespace RallyMixto
     // flujo de la experiencia
     public class App : MonoBehaviour
     {
-        public MaterialLibrary lib;
         public UIDocument doc;
         public StyleSheet sheet;
-        public Camera cam;
 
-        [HideInInspector] public Arena arena;
-        [HideInInspector] public Twin twin;
-        [HideInInspector] public CameraRig rig;
-        [HideInInspector] public ManualMode manual;
-        [HideInInspector] public AutoMode autoMode;
+        // objetos de la escena (hierarchy)
+        public Hub hub;
+        public Arena arena;
+        public Twin twin;
+        public CameraRig rig;
+        public ManualMode manual;
+        public AutoMode autoMode;
         [HideInInspector] public bool autoshots;
 
         public ConnectScreen connect;
@@ -28,27 +28,18 @@ namespace RallyMixto
         VisualElement uiRoot, screens, topbar, toasts, chipDot;
         Label chipPort;
         UiScreen current;
-        Hub hub;
 
         void Start()
         {
             Application.targetFrameRate = 120;
             QualitySettings.vSyncCount = 1;
 
-            hub = gameObject.AddComponent<Hub>();
-            gameObject.AddComponent<Sfx>();
-            arena = Arena.Build(lib);
-            twin = Twin.Build(lib, null);
             twin.Place(arena.showcasePos + new Vector3(0, 0, -12.8f), 200f);
             twin.Frozen = true;
-
-            rig = cam.gameObject.AddComponent<CameraRig>();
             rig.target = twin.transform;
             rig.Snap();
 
-            manual = gameObject.AddComponent<ManualMode>();
             manual.Init(arena, twin, rig);
-            autoMode = gameObject.AddComponent<AutoMode>();
             autoMode.Init(arena, twin, rig);
 
             BuildUi();
@@ -180,7 +171,6 @@ namespace RallyMixto
             // conexion perdida fuera de la pantalla de conexion
             if (hub.Phase == LinkPhase.Failed && current != connect)
             {
-                Sfx.I.Play("error");
                 Toast("Se perdió la conexión con el control", true);
                 Show(connect);
             }

@@ -88,7 +88,7 @@ El sensor HC-SR04 se retiró: el modo automático solo ejecuta la rutina.
 4. Bluetooth (opcional): en Windows, *Bluetooth y dispositivos → Agregar dispositivo → CarroRM-Control*.
 5. Descomprimir `Build/RallyMixto_Windows.zip` y abrir `RallyMixto.exe`. Elegir el puerto del control y pulsar **Conectar**.
 
-Para abrir el proyecto: Unity **6000.3.8f1**, carpeta `Unity/RallyMixto`, escena `Assets/_Project/Scenes/Main.unity`. El menú **Rally Mixto → Configurar proyecto / Compilar Windows** regenera materiales, escena y ejecutable.
+Para abrir el proyecto: Unity **6000.3.8f1**, carpeta `Unity/RallyMixto`, escena `Assets/_Project/Scenes/Main.unity`. Todo el contenido (arena, gemelo digital, cámara, luces, UI y lógica) está como objetos en la Hierarchy de esa escena. El ejecutable se genera desde **File → Build Profiles → Windows → Build**.
 
 ## Controles
 
