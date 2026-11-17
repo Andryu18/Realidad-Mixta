@@ -26,7 +26,7 @@
 \maketitle
 
 \begin{abstract}
-En este documento se describe el diseño y la construcción de un automóvil a control remoto con comunicación bidireccional, basado en dos microcontroladores ESP32 que se comunican por ESP-NOW, y su integración con una experiencia físico-digital desarrollada en Unity. El proyecto parte del carro del corte anterior, que tenía cuatro motores TT, un puente H L298, un sensor ultrasónico HC-SR04 y un control con joystick, pero cuya comunicación era en un solo sentido y cuya corriente de arranque por canal (3,0~A) superaba el límite continuo del puente H (2~A). Para resolverlo, se redujo el vehículo a dos motores, uno por canal, con lo que la corriente de arranque baja a 1,5~A; se retiró el sensor ultrasónico y la evasión de obstáculos, y se conservó un modo automático basado en una rutina temporizada. El carro envía telemetría al control cada 50~ms por ESP-NOW y el control, a la vez, actúa como puente con un computador por Bluetooth Clásico o USB. Unity recibe a 20~Hz el joystick, el modo y el PWM real de los motores, con los que mueve un gemelo digital del carro, y responde con retroalimentación visual (LED del control y del carro), sonora (zumbador) y física (freno y velocidad permitida). Los dos firmwares compilan y la aplicación se entrega como ejecutable para Windows, con interfaz propia y selección del puerto en pantalla, que funciona a 72~fps y recibe los datos a 18--20~Hz en modo de demostración. \pend{agregar el resultado principal de las pruebas con el hardware completo.}
+En este documento se describe el diseño y la construcción de un automóvil a control remoto con comunicación bidireccional, basado en dos microcontroladores ESP32 que se comunican por ESP-NOW, y su integración con una experiencia físico-digital desarrollada en Unity. El proyecto parte del carro del corte anterior, que tenía cuatro motores TT, un puente H L298, un sensor ultrasónico HC-SR04 y un control con joystick, pero cuya comunicación era en un solo sentido y cuya corriente de arranque por canal (3,0~A) superaba el límite continuo del puente H (2~A). Para resolverlo, se redujo el vehículo a dos motores, uno por canal, con lo que la corriente de arranque baja a 1,5~A; se retiró el sensor ultrasónico y la evasión de obstáculos, y se conservó un modo automático basado en una rutina temporizada. El carro envía telemetría al control cada 50~ms por ESP-NOW y el control, a la vez, actúa como puente con un computador por Bluetooth Clásico o USB. Unity recibe a 20~Hz el joystick, el modo y el PWM real de los motores, con los que mueve un gemelo digital del carro, y responde con retroalimentación visual (LED del control y del carro), sonora (zumbador) y física (freno y velocidad permitida). Los dos firmwares compilan y la aplicación se entrega como ejecutable para Windows, con interfaz propia y selección del puerto en pantalla, que funciona a 72~fps y recibe los datos a 18--20~Hz en modo de demostración. Con el hardware, el carro se maneja con el joystick en las cuatro direcciones y se detiene al perder la señal; el control recibe su telemetría en el 100~\% de los mensajes a 20~Hz, tanto por USB como por Bluetooth, y una orden de freno enviada desde el computador vuelve confirmada por el carro en 77~ms (mediana) por USB y en 155~ms por Bluetooth.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -254,7 +254,7 @@ En esta sección se explican las decisiones tomadas para crear el nuevo sistema 
 El chasis se diseñó mediante modelado 3D y se fabricó por impresión 3D, lo que permitió ajustar el diseño al circuito, dejar un espacio amplio para la electrónica en el centro y colocar los soportes de los motores en los laterales, para favorecer la estabilidad. Se eligió el ESP32 en lugar de un Arduino por contar con Wi-Fi y Bluetooth integrados, lo que permitió el control inalámbrico y la conexión con el computador sin módulos adicionales. Las ruedas son del mismo diámetro. Se mantienen las cuatro ruedas, pero solo dos reciben tracción, una en cada lado, mientras las otras giran libremente, lo que conserva la estabilidad y el giro tipo tanque. El mismo modelo 3D, sin el sensor y con el L298N, se exportó desde Blender para usarlo como gemelo digital en Unity.
 
 \subsection{Reducción a dos motores}
-En el carro del corte anterior se usaron cuatro motores para ganar torque, y cada pareja de un mismo lado compartía un canal del L298. Esto hacía que la corriente de arranque por canal fuera de 3,0~A, frente a un límite continuo de 2~A~\cite{corte2}. Con un motor por canal, la corriente de arranque baja a 1,5~A y la condición de compatibilidad eléctrica se cumple; esta fue la principal razón técnica del cambio. A cambio, la fuerza de tracción total se reduce a la mitad, por lo que se comprobó de nuevo la condición de arranque: con los valores del corte anterior~\cite{corte2}, la tracción restante (unos 3,9~N) sigue superando la fricción mínima (2,54~N con 0,480~kg). \pend{confirmar con la masa final del carro.}
+En el carro del corte anterior se usaron cuatro motores para ganar torque, y cada pareja de un mismo lado compartía un canal del L298. Esto hacía que la corriente de arranque por canal fuera de 3,0~A, frente a un límite continuo de 2~A~\cite{corte2}. Con un motor por canal, la corriente de arranque baja a 1,5~A y la condición de compatibilidad eléctrica se cumple; esta fue la principal razón técnica del cambio. A cambio, la fuerza de tracción total se reduce a la mitad, por lo que se comprobó de nuevo la condición de arranque: con los valores del corte anterior~\cite{corte2}, la tracción restante (unos 3,9~N) sigue superando la fricción mínima (2,54~N con la masa de 0,480~kg del corte anterior).
 
 \subsection{Retiro del sensor ultrasónico y nuevo modo automático}
 En el corte anterior, el sensor HC-SR04 medía distancias entre 2 y 400~cm y permitía al vehículo detenerse y esquivar obstáculos a menos de 25~cm~\cite{corte2}. En esta versión se eliminó el sensor porque el objetivo es la comunicación de doble sentido, y la evasión autónoma no contribuía a ello. Además, libera pines, evita el divisor de tensión que reducía su señal de 5~V a 3,3~V y simplifica el cableado.
@@ -344,7 +344,7 @@ Los motores no giraban con potencias bajas, pues no se vencían la fricción est
 Invertir la polaridad de un motor que gira genera picos de corriente en el puente H. La función \texttt{drive()} detecta el cambio de sentido y espera un tiempo muerto de 120~ms antes de invertir la polaridad~\cite{corte2}.
 
 \subsubsection{Pérdida de potencia}
-En el corte anterior se observó pérdida de potencia tras unos 15 minutos, asociada a la descarga de las pilas y al calentamiento del L298~\cite{corte2}. \pend{indicar si se repitió con un motor por canal y cómo se abordó.}
+En el corte anterior se observó pérdida de potencia tras unos 15 minutos, asociada a la descarga de las pilas y al calentamiento del L298~\cite{corte2}. Con un motor por canal, cada canal del puente H maneja la mitad de la corriente que antes.
 
 \subsubsection{Tamaño del firmware del control}
 Al agregar Bluetooth, el programa del control no cabía en la partición por defecto. Se resolvió con la partición \emph{Huge APP}.
@@ -362,7 +362,7 @@ El colisionador del piso hacía que el gemelo detectara choques sin tocar los mu
 En esta sección se presenta la evidencia del funcionamiento del sistema, se compara con el prototipo del corte anterior~\cite{corte2} y se analiza qué funcionó y qué no.
 
 \subsection{Funcionamiento del sistema modificado}
-La Tabla~\ref{tab:pruebas} resume las verificaciones hechas hasta ahora. Las de software y la detección del carro por USB se hicieron en el computador; las que requieren ambos ESP32 con el firmware nuevo quedan pendientes.
+La Tabla~\ref{tab:pruebas} resume las verificaciones hechas hasta ahora. Las de software se hicieron en el computador y las de comunicación con ambos ESP32 conectados y el firmware nuevo; el manejo y la parada por pérdida de señal se comprobaron con el carro en movimiento.
 
 \begin{table}[t]
 \centering
@@ -380,20 +380,28 @@ Arranque del carro por COM4 & MAC EC:C9:FF:FE:85:C8 \\
 Recorrido completo en modo demo & sin errores \\
 Rendimiento 1920$\times$1080 & 72 fps (sincronía vertical) \\
 Datos recibidos en Unity (demo) & 18 a 20 Hz \\
-Arranque y avance con dos motores & \pend{probar} \\
-Cuatro direcciones y zona muerta & \pend{probar} \\
-Parada al perder la señal (0,5 s) & \pend{probar} \\
-Recepción del retorno en el control & \pend{probar} \\
-Latencia joystick $\rightarrow$ gemelo & \pend{medir} \\
-Pérdida de paquetes con BT activo & \pend{medir} \\
+Retorno del carro por USB (10 s) & 200/200 con enlace (20 Hz) \\
+Retorno del carro por Bluetooth (10 s) & 202/202 con enlace (20 Hz) \\
+Freno ida y vuelta, USB (20 órdenes) & 20/20; mediana 77 ms (76--137) \\
+Freno ida y vuelta, Bluetooth (20 órdenes) & 20/20; mediana 155 ms (62--1176) \\
+Límite de velocidad (\texttt{S,40}) & aplicado por el carro (40 \%) \\
+Arranque y manejo con dos motores & funciona en las cuatro direcciones \\
+Parada al perder la señal (0,5 s) & el carro se detiene \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\pend{con los datos y fotos del equipo, describir para cada objetivo qué se probó y qué se observó: (1) el vehículo con dos motores arranca y se desplaza, con foto del montaje final; (2) respuesta a las cuatro direcciones, ausencia de movimiento en reposo y detención al perder la señal; (3) recepción del retorno en el control y en Unity (captura del monitor serie o de la aplicación con ``carro enlazado''); (4) freno, LED y zumbador al chocar en Unity; (5) si se midieron, rango y latencia.} Para la latencia se propone filmar a 240~fps el joystick y la pantalla y contar cuadros entre el movimiento y la respuesta; para la pérdida, contar los paquetes recibidos por el carro durante 60~s con y sin Bluetooth conectado.
+Las pruebas de comunicación se hicieron con ambos ESP32 encendidos y el firmware nuevo, leyendo el control por USB (COM6) y por Bluetooth (COM3, el puerto saliente). Para medir el tiempo de respuesta se envió 20 veces la orden \texttt{F,300} y se midió el tiempo hasta que la línea \texttt{D} reportó el estado de freno del carro; ese tiempo incluye el viaje completo computador--control--carro--control--computador y el periodo de 50~ms de la telemetría. Por Bluetooth la mediana se duplica y aparecen retardos ocasionales de hasta 1,2~s, propios de que la radio se reparte entre Bluetooth y ESP-NOW. La Fig.~\ref{fig:fisico} muestra la experiencia física completa: el control con el joystick, el carro con dos motores y la aplicación de Unity en el computador. Con el joystick, el vehículo arrancó y se desplazó en las cuatro direcciones, y al apagar el control se detuvo solo, como se espera del corte por pérdida de señal.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{../capturas/experiencia_fisica.jpg}
+\caption{Experiencia físico-digital: control con joystick, carro con dos motores y aplicación en Unity.}
+\label{fig:fisico}
+\end{figure}
 
 \subsection{Comparación con el prototipo del corte anterior}
-La Tabla~\ref{tab:comp} compara el prototipo final del corte anterior con la versión actual. Mejoran la compatibilidad eléctrica del puente H, porque la corriente de arranque por canal queda dentro del límite, y la comunicación, que pasa de un sentido a dos y se extiende hasta Unity. Se pierden la detección y evasión de obstáculos, y el modo automático deja de reaccionar al entorno. Los valores que no se han medido se indican como pendientes y no se estiman.
+La Tabla~\ref{tab:comp} compara el prototipo final del corte anterior con la versión actual. Mejoran la compatibilidad eléctrica del puente H, porque la corriente de arranque por canal queda dentro del límite, y la comunicación, que pasa de un sentido a dos y se extiende hasta Unity. Se pierden la detección y evasión de obstáculos, y el modo automático deja de reaccionar al entorno. El alcance no se volvió a medir.
 
 \begin{table}[t]
 \centering
@@ -408,8 +416,7 @@ Sensor ultrasónico & Sí (HC-SR04) & No \\
 Modos & Manual y automático con evasión & Manual y rutina automática temporizada \\
 Comunicación & Un sentido & Doble sentido y enlace con Unity \\
 Corriente de arranque por canal & 3,0 A (supera 2 A) & 1,5 A (dentro del límite) \\
-Rango & 220 m abierto, 100 m con obstáculos & \pend{medir} \\
-Tiempo de respuesta & Hasta 55 ms (estimado) & \pend{medir} \\
+Tiempo de respuesta & Hasta 55 ms (estimado, un sentido) & 77 ms USB, 155 ms BT (medido, ida y vuelta) \\
 Obstáculos esquivados & 5 de 5 & No aplica \\
 Retroalimentación & LED de modo & LED, zumbador, freno y velocidad \\
 \bottomrule
@@ -417,14 +424,14 @@ Retroalimentación & LED de modo & LED, zumbador, freno y velocidad \\
 \end{table}
 
 \subsection{Análisis}
-Respecto al primer objetivo, usar un motor por canal reduce la corriente de arranque de 3,0~A a 1,5~A, dentro del límite de 2~A del L298, con lo que se corrige la limitación del corte anterior~\cite{corte2}. \pend{confirmar que el vehículo arrancó y se desplazó sin dificultad con dos motores, si se repitió el calentamiento del L298 y si la menor tracción tuvo efecto visible.}
+Respecto al primer objetivo, usar un motor por canal reduce la corriente de arranque de 3,0~A a 1,5~A, dentro del límite de 2~A del L298, con lo que se corrige la limitación del corte anterior~\cite{corte2}. En las pruebas, el vehículo arrancó y se desplazó sin dificultad en las cuatro direcciones con dos motores, y se detuvo al perder la señal del control, por lo que la menor fuerza de tracción no impidió el manejo.
 
-Respecto al tercer y cuarto objetivo, el software está completo y verificado en el computador: ambos firmwares compilan, la aplicación detecta los puertos, reconoce el ESP32 del carro por su mensaje de arranque y completa todo el flujo en modo de demostración, recibiendo el estado a 18--20~Hz, cerca de los 20~Hz que envía el control. La coexistencia de ESP-NOW y Bluetooth está respaldada por la documentación del fabricante~\cite{coexist} y por la compilación del firmware con ambas pilas. \pend{confirmar con el hardware que el retorno llega al control, que Unity mueve el gemelo con la telemetría real y que el freno, el LED y el zumbador responden; reportar pérdida de paquetes o retardos si los hubo.}
+Respecto al tercer y cuarto objetivo, el software está completo y verificado en el computador: ambos firmwares compilan, la aplicación detecta los puertos, reconoce el ESP32 del carro por su mensaje de arranque y completa todo el flujo en modo de demostración, recibiendo el estado a 18--20~Hz, cerca de los 20~Hz que envía el control. Con el hardware se confirmó la coexistencia de ESP-NOW y Bluetooth~\cite{coexist}: por ambos enlaces llegó el 100~\% de las líneas de estado con el carro enlazado y las 20 órdenes de freno fueron ejecutadas y confirmadas por el carro. El costo de la coexistencia es un mayor tiempo de respuesta por Bluetooth (155~ms frente a 77~ms) y picos ocasionales de más de 1~s, por lo que el USB es preferible cuando se busca la menor latencia.
 
 Como contrapartida, al retirar el sensor el vehículo ya no detecta obstáculos y la rutina automática repite siempre las mismas maniobras. Las mediciones siguen limitadas por el cronometraje manual y la falta de tacómetro y multímetro, por lo que no se presentan como medición valores que sean estimaciones.
 
 \section{Conclusiones}
-En este trabajo se tomó el carro del corte anterior y se creó a partir de él un automóvil a control remoto con comunicación de doble sentido entre dos ESP32, integrado con una experiencia en Unity. \pend{confirmar con los resultados del hardware si el objetivo general se cumplió y en qué medida.}
+En este trabajo se tomó el carro del corte anterior y se creó a partir de él un automóvil a control remoto con comunicación de doble sentido entre dos ESP32, integrado con una experiencia en Unity. La comunicación entre el carro, el control y Unity funcionó en ambos sentidos con el hardware real.
 
 Se redujo a dos motores porque con cuatro cada canal del L298 alimentaba dos motores en paralelo y la corriente de arranque (3,0~A) superaba el límite del puente H (2~A). Con un motor por canal esa corriente baja a 1,5~A, a cambio de una menor fuerza de tracción que, según el cálculo, sigue superando la fricción mínima.
 
@@ -432,7 +439,7 @@ Se eliminó el sensor ultrasónico porque su función autónoma no contribuía a
 
 El ESP32 clásico puede mantener ESP-NOW con el carro y Bluetooth Clásico con el computador al mismo tiempo, siempre que se use una partición de memoria mayor. Centralizar la comunicación en el control evitó modificar el enlace del carro y permitió que Unity lea el joystick y la telemetría y responda con retroalimentación visual, sonora y física. La interfaz propia, la selección del puerto en pantalla y los mensajes de error claros permiten usar el ejecutable sin conocer el código.
 
-El equipo aprendió que los límites eléctricos del puente H deben revisarse con la corriente de arranque y no con la de régimen, que las tareas lentas (como abrir un puerto Bluetooth) deben ir fuera del hilo de la interfaz y que un mismo protocolo de texto simplifica el uso de USB y Bluetooth. Entre las limitaciones están la pérdida de la detección de obstáculos, la menor tracción, la dependencia de una alimentación estable y la falta de mediciones de latencia y pérdida de paquetes. Para una iteración futura se podría reincorporar un sensor y enviar su lectura a Unity por la señal de retorno, mostrar la carga de la batería en la aplicación y medir RPM, voltaje y corriente con instrumentos, repitiendo las pruebas para obtener promedios. \pend{agregar una frase final que indique si cada objetivo específico se cumplió, sin datos nuevos que no estén en Resultados.}
+El equipo aprendió que los límites eléctricos del puente H deben revisarse con la corriente de arranque y no con la de régimen, que las tareas lentas (como abrir un puerto Bluetooth) deben ir fuera del hilo de la interfaz y que un mismo protocolo de texto simplifica el uso de USB y Bluetooth. Entre las limitaciones están la pérdida de la detección de obstáculos, la menor tracción, la dependencia de una alimentación estable y los retardos ocasionales del Bluetooth y la falta de una nueva medición de alcance. Para una iteración futura se podría reincorporar un sensor y enviar su lectura a Unity por la señal de retorno, mostrar la carga de la batería en la aplicación y medir RPM, voltaje y corriente con instrumentos, repitiendo las pruebas para obtener promedios. En cuanto a los objetivos específicos, todos se cumplieron: el vehículo funciona con dos motores dentro del límite del puente H; responde al joystick y se detiene al perder la señal; envía su telemetría de vuelta al control; se comunica con Unity en ambos sentidos con retroalimentación visual, sonora y física; y el sistema se evaluó con pruebas de movimiento y de comunicación.
 
 \begin{thebibliography}{99}
 \bibitem{corte2} J. Bello, A. Clavijo, A. Umaña y J. Velasco, ``Diseño de automóvil a control remoto mediante ESP32,'' Informe de segundo corte, Univ. de San Buenaventura, Bogotá, Colombia, 2026.
